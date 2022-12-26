@@ -34,14 +34,16 @@ def transaction_func(url, transaction):
                     })
     return transaction
 
+
 def delegate_func(snapshot, transfer):
     average = round(float(transfer['value']) * float(transfer['days']) / total_days, 3)
     if transfer['address'] not in snapshot.keys():
         snapshot[f"{transfer['address']}"] = {"average": f"{average}"}
     else:
         snapshot[transfer['address']][
-            'average'] = f"{float(snapshot[transfer['address']]['average'])+float(average)}"
+            'average'] = f"{float(snapshot[transfer['address']]['average']) + float(average)}"
     return snapshot
+
 
 def undelegate_func(snapshot, transfer):
     average = round(float(transfer['value']) * float(transfer['days']) / total_days, 3)
@@ -49,8 +51,9 @@ def undelegate_func(snapshot, transfer):
         snapshot[f"{transfer['address']}"] = {"average": f"{-average}"}
     else:
         snapshot[transfer['address']][
-            'average'] = f"{float(snapshot[transfer['address']]['average'])-float(average)}"
+            'average'] = f"{float(snapshot[transfer['address']]['average']) - float(average)}"
     return snapshot
+
 
 def reward_func(snapshot, transfer):
     average = round(float(transfer['value']) * float(transfer['days']) / total_days, 3)
@@ -58,15 +61,16 @@ def reward_func(snapshot, transfer):
         'average'] = f"{float(snapshot[transfer['address']]['average']) + float(average)}"
     return snapshot
 
-def wallet_func(snapshot,transaction,wallets_balance):
 
+def wallet_func(snapshot, transaction, wallets_balance):
     print(wallets_balance)
     for addr in snapshot:
         if addr in wallets_balance:
-            snapshot[f"{addr}"]['average']= f"{float(wallets_balance[addr]['balance'])+float(snapshot[addr]['average'])}"
+            snapshot[f"{addr}"][
+                'average'] = f"{float(wallets_balance[addr]['balance']) + float(snapshot[addr]['average'])}"
 
     for wallet in transaction:
-        if wallet['function'] in ('delegate','reDelegateRewards'):
+        if wallet['function'] in ('delegate', 'reDelegateRewards'):
             if wallet['address'] not in wallets_balance:
                 wallets_balance[f"{wallet['address']}"] = {"balance": f"{wallet['value']}"}
             else:
@@ -75,7 +79,7 @@ def wallet_func(snapshot,transaction,wallets_balance):
         elif wallet['function'] == 'unDelegate':
             wallets_balance[wallet['address']][
                 'balance'] = f"{float(wallets_balance[wallet['address']]['balance']) - float(wallet['value'])}"
-    return [snapshot,wallets_balance]
+    return [snapshot, wallets_balance]
 
 
 def main():
@@ -89,8 +93,8 @@ def main():
         elif transfer['function'] == 'unDelegate':
             undelegate_func(snapshot, transfer)
         elif transfer['function'] == 'reDelegateRewards':
-            reward_func(snapshot,transfer)
-    snapshot_balance = wallet_func(snapshot, transaction,wallets_balance)
+            reward_func(snapshot, transfer)
+    snapshot_balance = wallet_func(snapshot, transaction, wallets_balance)
     print(snapshot_balance[0])
     print(snapshot_balance[1])
 
@@ -102,5 +106,6 @@ def main():
 
     transaction_txt = open("transaction.txt", "w")
     transaction_txt.write(f"{transaction_list}")
+
 
 main()
